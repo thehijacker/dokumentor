@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card card">
+        <div class="card-body">
+            <h2 class="text-center mb-4" id="register-title">Register</h2>
+            
+            <form id="register-form">
+                <div class="mb-3">
+                    <label for="username" class="form-label" id="username-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label" id="email-label">Email</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label" id="password-label">Password</label>
+                    <input type="password" class="form-control" id="password" required minlength="6">
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" id="register-btn">Register</button>
+            </form>
+            
+            <div class="text-center mt-3">
+                <small id="have-account-text">Already have an account?</small>
+                <a href="/login" id="login-link">Login</a>
+            </div>
+            
+            <!-- Language Selector -->
+            <div class="text-center mt-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setLanguage('en')">EN</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setLanguage('sl')">SL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Translate page
+    document.getElementById('register-title').textContent = t('register');
+    document.getElementById('username-label').textContent = t('username');
+    document.getElementById('email-label').textContent = t('email');
+    document.getElementById('password-label').textContent = t('password');
+    document.getElementById('register-btn').textContent = t('register');
+    document.getElementById('have-account-text').textContent = t('have_account') + ' ';
+    document.getElementById('login-link').textContent = t('login');
+    
+    // Handle registration
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        try {
+            const result = await API.post('/api/auth/register', { username, email, password });
+            showToast(t('register') + ' ' + t('save_success'), 'success');
+            setTimeout(() => window.location.href = '/', 1000);
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    });
+</script>
+{% endblock %}

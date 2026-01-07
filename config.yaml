@@ -1,0 +1,73 @@
+# Application Configuration
+# Environment variables can override these settings
+
+app:
+  name: "Dokumentor"
+  version: "1.0.0"
+  # Replace the default secret with a securely generated key. Example:
+  #   python -c "import secrets; print(secrets.token_urlsafe(32))"
+  # Do not commit your secret to version control.
+  secret_key: "change-this-secret-key-in-production"
+  debug: false
+
+server:
+  host: "0.0.0.0"
+  port: 5000
+
+database:
+  path: "./data/documents.db"
+
+storage:
+  documents_path: "./documents"
+  watch_folder: "./watch_folder"
+  max_file_size: 52428800  # 50MB in bytes
+
+auth:
+  enable_registration: true
+  session_lifetime: 86400  # 24 hours in seconds
+  require_email_verification: false
+
+ocr:
+  enabled: true
+  engine: "tesseract"  # Options: tesseract (only Tesseract is supported)
+  default_languages: ["eng", "slv"]  # English and Slovenian
+  tesseract_path: ""  # Leave empty for system default
+  confidence_threshold: 60
+
+# PDF settings
+# Note: decrypt_passwords are now user-specific (configurable in Settings page)
+# These serve as optional global fallback passwords for all users
+pdf:
+  decrypt_passwords: []  # Optional: Add global fallback passwords here
+
+ai:
+  provider: "internal"  # Options: internal, openai, ollama
+  model: "simple"  # For internal: simple, advanced
+  openai_api_key: ""
+  openai_model: "gpt-3.5-turbo"
+  ollama_url: "http://localhost:11434"
+  ollama_model: "llama2"
+  confidence_threshold: 0.7
+  subcategory_confidence_threshold: 0.0
+  learning_enabled: true
+
+# Categories configuration
+# Set 'initialize_predefined' to true if you want the application to create
+# predefined categories from this config on first run. Default is false.
+categories:
+  initialize_predefined: false
+  # If you prefer, you can define predefined categories here. By default they are
+  # disabled so users can add categories manually from the UI.
+  # predefined: []
+
+watch_folder:
+  enabled: true
+  interval: 10  # Check every 10 seconds
+  delete_after_processing: false
+  move_to_archive: true
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "./logs/app.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5

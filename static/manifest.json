@@ -1,0 +1,18 @@
+{
+    "name": "Dokumentor",
+    "short_name": "Dokumentor",
+    "description": "Organize and categorize your documents with AI",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0066cc",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "/static/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

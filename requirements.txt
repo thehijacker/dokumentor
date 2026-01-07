@@ -1,0 +1,45 @@
+# Web Framework
+Flask==3.0.0
+Flask-Login==0.6.3
+Flask-CORS==4.0.0
+Werkzeug==3.0.1
+
+# Database
+SQLAlchemy==2.0.23
+
+# Configuration
+PyYAML==6.0.1
+python-dotenv==1.0.0
+
+# OCR
+pytesseract==0.3.10
+Pillow==10.1.0
+
+# PDF Processing
+PyPDF2==3.0.1
+pdfplumber==0.10.3
+pdf2image==1.16.3
+PyCryptodome==3.19.0
+
+# DOC/DOCX Processing
+python-docx==0.8.11  # Extract text from .docx files
+# Note: Legacy .doc extraction is best-effort using system utilities like 'antiword' or 'catdoc'. If you need Python-level support, install 'textract' separately (may require system deps).
+# Image Processing
+opencv-python-headless==4.8.1.78
+
+# AI/ML
+scikit-learn==1.3.2
+numpy==1.26.2
+joblib==1.3.2
+
+# OpenAI (optional)
+openai==1.3.7
+
+# HTTP requests (for Ollama)
+requests==2.31.0
+
+# File watching
+watchdog==3.0.0
+
+# Utilities
+python-magic==0.4.27  # For Linux file type detection

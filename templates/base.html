@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dokumentor - Organize and categorize your documents with AI">
+    <meta name="theme-color" content="#0066cc">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Dokumentor">
+    
+    <title>{% block title %}{{ app_name }}{% if app_version %} v{{ app_version }}{% endif %}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+    
+    {% block content %}{% endblock %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Expose app version to client JS -->
+    <script>window.APP_VERSION = "{{ app_version }}";</script>
+
+    <!-- App JS -->
+    <script src="/static/js/app.js"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+    
+    <!-- Service Worker Registration -->
+    <script>
+    (function() {
+        'use strict';
+        
+        // Check if Service Worker is supported
+        if (typeof navigator === 'undefined' || !navigator.serviceWorker) {
+            console.warn('Service Worker not supported in this environment');
+            return;
+        }
+        
+        // Service Workers require HTTPS (or localhost)
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            console.warn('Service Worker requires HTTPS or localhost. Current:', location.protocol + '//' + location.hostname);
+            return;
+        }
+        
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js')
+                .then(function(registration) {
+                    console.log('✓ Service Worker registered successfully');
+                    console.log('  Scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.error('✗ Service Worker registration failed:', error);
+                });
+        });
+    })();
+    </script>
+</body>
+</html>
