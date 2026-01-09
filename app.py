@@ -714,7 +714,21 @@ def api_update_document(document_id):
             document.bill_value = data['bill_value']
         
         if 'original_filename' in data:
-            document.original_filename = data['original_filename']
+            # Preserve or restore file extension when user edits filename
+            new_filename = data['original_filename'].strip()
+
+            # If the user removed the extension, append the original extension
+            if new_filename and '.' not in new_filename:
+                orig_ext = os.path.splitext(document.original_filename)[1]
+                if orig_ext:
+                    new_filename = new_filename + orig_ext
+
+            # If new filename extension differs from stored file_type, keep stored file_type
+            new_ext = os.path.splitext(new_filename)[1].lower()
+            if new_ext and new_ext != f".{document.file_type}":
+                app.logger.info(f"Filename extension '{new_ext}' differs from stored file_type '{document.file_type}'; keeping file_type unchanged")
+
+            document.original_filename = new_filename
         
         if 'tags' in data:
             if isinstance(data['tags'], list):

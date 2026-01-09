@@ -442,10 +442,12 @@ async function loadRecentDocuments() {
             return;
         }
         
-        tbody.innerHTML = data.documents.map(doc => `
+        tbody.innerHTML = data.documents.map(doc => {
+            const ft = (doc.file_type || '').toLowerCase().trim();
+            return `
             <tr class="document-item" onclick="viewDocument(${doc.id})">
                 <td>
-                    <i class="bi bi-file-earmark-${doc.file_type === 'pdf' ? 'pdf' : (doc.file_type === 'docx' ? 'word' : 'image')}"></i>
+                    <i class="bi bi-file-earmark-${ft === 'pdf' ? 'pdf' : (ft === 'docx' ? 'word' : 'image')}"></i>
                     ${doc.original_filename}
                 </td>
                 <td>${doc.category ? doc.category.name : '-'}</td>
@@ -456,7 +458,7 @@ async function loadRecentDocuments() {
                     </button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
     } catch (error) {
         console.error('Failed to load recent documents:', error);
     }
@@ -489,19 +491,20 @@ async function loadDocuments(page = 1) {
             const confidenceClass = confidence > 0.7 ? 'confidence-high' : confidence > 0.4 ? 'confidence-medium' : 'confidence-low';
             const billValueDisplay = doc.bill_value ? `${doc.bill_value.toFixed(2)} €` : t('no_bill_value');
             const notesIcon = doc.notes ? `<i class="bi bi-sticky-fill text-warning" title="${doc.notes}" data-bs-toggle="tooltip"></i>` : '-';
+            const ft = (doc.file_type || '').toLowerCase().trim();
             
             return `
                 <tr class="document-item" onclick="viewDocument(${doc.id})">
                     <td>
                         <!-- Desktop view -->
                         <div class="d-none d-lg-block filename-cell">
-                            <i class="bi bi-file-earmark-${doc.file_type === 'pdf' ? 'pdf' : (doc.file_type === 'docx' ? 'word' : 'image')}"></i>
+                            <i class="bi bi-file-earmark-${ft === 'pdf' ? 'pdf' : (ft === 'docx' ? 'word' : 'image')}"></i>
                             <span title="${doc.original_filename}">${doc.original_filename}</span>
                         </div>
                         <!-- Mobile card view -->
                         <div class="d-lg-none mobile-card">
                             <div class="d-flex align-items-center mb-1">
-                                <i class="bi bi-file-earmark-${doc.file_type === 'pdf' ? 'pdf' : (doc.file_type === 'docx' ? 'word' : 'image')} me-2"></i>
+                                <i class="bi bi-file-earmark-${ft === 'pdf' ? 'pdf' : (ft === 'docx' ? 'word' : 'image')} me-2"></i>
                                 <strong class="flex-grow-1" style="font-size: 0.9rem;">${doc.original_filename}</strong>
                             </div>
                             <div class="mobile-card-details">
@@ -1071,6 +1074,9 @@ async function viewDocument(id) {
             }
         });
         
+        // Store original extension so edits don't accidentally remove it
+        const origExt = doc.original_filename && doc.original_filename.includes('.') ? doc.original_filename.split('.').pop() : '';
+        document.getElementById('documentModal').dataset.origExt = origExt;
         // Show modal
         new bootstrap.Modal(document.getElementById('documentModal')).show();
     } catch (error) {
@@ -1083,8 +1089,16 @@ async function saveDocumentChanges() {
     const categoryId = parseInt(document.getElementById('edit-category').value);
     const subcategoryId = document.getElementById('edit-subcategory').value;
     const notes = document.getElementById('edit-notes').value;
-    const filename = document.getElementById('edit-filename').value.trim();
+    let filename = document.getElementById('edit-filename').value.trim();
     const billValue = parseFloat(document.getElementById('edit-bill-value').value) || null;
+
+    // If user removed extension, restore original extension stored on modal
+    if (filename && !filename.includes('.')) {
+        const origExt = document.getElementById('documentModal').dataset.origExt || '';
+        if (origExt) {
+            filename = filename + '.' + origExt;
+        }
+    }
     
     if (!filename) {
         alert('Filename cannot be empty');
@@ -1113,11 +1127,14 @@ async function saveDocumentChanges() {
 
 // Preview document inline in same page
 function previewDocumentInline(id, fileType) {
+    // Normalize preview type to handle case/whitespace differences
+    const ft = (fileType || '').toLowerCase().trim();
+
     // Create preview modal (draggable & resizable)
     let bodyContent = '';
-    if (fileType === 'pdf') {
+    if (ft === 'pdf') {
         bodyContent = '<iframe src="/api/documents/' + id + '/preview#view=FitH&toolbar=1&navpanes=0" style="width: 100%; height: 100%; border: none;"></iframe>';
-    } else if (fileType === 'docx') {
+    } else if (ft === 'docx') {
         bodyContent = '<div style="width: 100%; height: 100%; overflow: auto; display: flex; align-items: center; justify-content: center; background: #f8f9fa;"><div class="text-center"><p class="mb-3">' + t('docx_preview_unavailable') + '</p><a class="btn btn-primary me-2" href="/api/documents/' + id + '/preview" target="_blank">' + t('open_in_new_tab') + '</a><a class="btn btn-secondary" href="/api/documents/' + id + '/download">' + t('download') + '</a></div></div>';
     } else {
         bodyContent = '<div style="width: 100%; height: 100%; overflow: auto; display: flex; align-items: center; justify-content: center; background: #333;"><img id="preview-image" src="/api/documents/' + id + '/preview" style="max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in;" onclick="this.style.transform = this.style.transform === \"scale(2)\" ? \"scale(1)\" : \"scale(2)\"; this.style.cursor = this.style.transform === \"scale(2)\" ? \"zoom-out\" : \"zoom-in\";" /></div>';
@@ -1165,10 +1182,10 @@ function previewDocumentInline(id, fileType) {
     
     // Show modal
     const modalEl = document.getElementById('previewModal');
-    // Save preview type for later behaviors on both modal and dialog elements
+    // Save normalized preview type for later behaviors on both modal and dialog elements
     const dialogEl = document.getElementById('preview-dialog');
-    if (dialogEl) dialogEl.dataset.previewType = fileType;
-    if (modalEl) modalEl.dataset.previewType = fileType;
+    if (dialogEl) dialogEl.dataset.previewType = ft;
+    if (modalEl) modalEl.dataset.previewType = ft;
     const previewModal = new bootstrap.Modal(modalEl);
     previewModal.show();
 
