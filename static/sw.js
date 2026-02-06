@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dokumentor-cache-v2';  // Increment to force update
+const CACHE_NAME = 'dokumentor-cache-v1.0.1';  // Increment to force update
 const urlsToCache = [
     '/static/css/style.css',
     '/static/js/app.js',

@@ -3,7 +3,7 @@
 
 app:
   name: "Dokumentor"
-  version: "1.0.0"
+  version: "1.0.1"
   # Replace the default secret with a securely generated key. Example:
   #   python -c "import secrets; print(secrets.token_urlsafe(32))"
   # Do not commit your secret to version control.

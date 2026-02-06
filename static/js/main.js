@@ -3,8 +3,31 @@ let currentPage = 1;
 let currentDocumentId = null;
 let categories = [];
 let cameraStream = null;
+
 // Load sort from localStorage or use default
-let currentSort = JSON.parse(localStorage.getItem('documentSort')) || { by: 'uploaded', order: 'desc' };
+function getInitialSort() {
+    try {
+        const saved = localStorage.getItem('documentSort');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            console.log('Loaded sort from localStorage:', parsed);
+            return parsed;
+        }
+    } catch (e) {
+        console.error('Error loading sort from localStorage:', e);
+    }
+    const defaultSort = { by: 'uploaded', order: 'desc' };
+    console.log('Using default sort:', defaultSort);
+    // Save default to localStorage
+    try {
+        localStorage.setItem('documentSort', JSON.stringify(defaultSort));
+    } catch (e) {
+        console.error('Error saving default sort to localStorage:', e);
+    }
+    return defaultSort;
+}
+
+let currentSort = getInitialSort();
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,6 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Debug: Log current sort on page load
+    console.log('=== Application Initialized ===');
+    console.log('Current sort state:', currentSort);
+    console.log('localStorage documentSort:', localStorage.getItem('documentSort'));
+    
     translateUI();
     loadStats();
     loadCategories();
@@ -147,8 +175,15 @@ function setupSortableColumns() {
                 currentSort.order = 'asc';
             }
             
+            console.log('Sort changed to:', currentSort);
+            
             // Save to localStorage
-            localStorage.setItem('documentSort', JSON.stringify(currentSort));
+            try {
+                localStorage.setItem('documentSort', JSON.stringify(currentSort));
+                console.log('Saved sort to localStorage');
+            } catch (e) {
+                console.error('Error saving sort to localStorage:', e);
+            }
             
             // Update visual indicators
             updateSortIcons();
@@ -159,6 +194,7 @@ function setupSortableColumns() {
     });
     
     // Initialize sort icons on setup to match current sort
+    console.log('Initializing sort icons with:', currentSort);
     updateSortIcons();
 }
 
@@ -484,6 +520,7 @@ async function loadDocuments(page = 1) {
         if (subcategoryId) url += `&subcategory_id=${subcategoryId}`;
         url += `&sort_by=${currentSort.by}&sort_order=${currentSort.order}`;
         
+        console.log('Loading documents with URL:', url);
         const data = await API.get(url);
         const tbody = document.getElementById('documents-body');
         
