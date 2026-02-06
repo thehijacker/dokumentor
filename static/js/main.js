@@ -3,7 +3,7 @@ let currentPage = 1;
 let currentDocumentId = null;
 let categories = [];
 let cameraStream = null;
-let currentSort = { by: 'filename', order: 'desc' };
+let currentSort = { by: 'uploaded', order: 'desc' };
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
