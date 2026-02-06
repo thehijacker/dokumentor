@@ -3,7 +3,8 @@ let currentPage = 1;
 let currentDocumentId = null;
 let categories = [];
 let cameraStream = null;
-let currentSort = { by: 'uploaded', order: 'desc' };
+// Load sort from localStorage or use default
+let currentSort = JSON.parse(localStorage.getItem('documentSort')) || { by: 'uploaded', order: 'desc' };
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -146,6 +147,9 @@ function setupSortableColumns() {
                 currentSort.order = 'asc';
             }
             
+            // Save to localStorage
+            localStorage.setItem('documentSort', JSON.stringify(currentSort));
+            
             // Update visual indicators
             updateSortIcons();
             
@@ -153,6 +157,9 @@ function setupSortableColumns() {
             loadDocuments(currentPage);
         });
     });
+    
+    // Initialize sort icons on setup to match current sort
+    updateSortIcons();
 }
 
 function updateSortIcons() {
